@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: jenkins
-          image: jenkins/jenkins:lts-jdk17
+          image: docker.io/rvbasulto/jenkins-multi-jdk:latest
           ports:
             - containerPort: 8080
             - containerPort: 50000

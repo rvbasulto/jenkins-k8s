@@ -1,0 +1,68 @@
+# Jenkins on Kubernetes
+
+This repository contains the necessary files to deploy Jenkins on a Kubernetes cluster using YAML resources.
+
+## Included files
+
+- `jenkins-deployment.yaml`: Jenkins Deployment.
+- `jenkins-service.yaml`: Service to expose Jenkins within the cluster.
+- `jenkins-ingress.yaml`: Ingress rules for external access (optional).
+- `jenkins-pv.yaml`: Persistent Volume for data storage.
+- `jenkins-pvc.yaml`: Persistent Volume Claim.
+
+## Quick deployment
+
+1. Apply the resources in the following order:
+   ```bash
+   kubectl apply -f jenkins-pv.yaml
+   kubectl apply -f jenkins-pvc.yaml
+   kubectl apply -f jenkins-deployment.yaml
+   kubectl apply -f jenkins-service.yaml
+   # Optional, if you use Ingress
+   kubectl apply -f jenkins-ingress.yaml
+   ```
+
+2. Access Jenkins according to your Service or Ingress configuration.
+
+## Notes
+
+- Make sure you have the proper storage configured in your cluster.
+- Modify the YAML files as needed (resources, paths, etc).
+
+## Useful commands to remember
+
+- Get all pods:
+  ```bash
+  kubectl get pods
+  ```
+- Get all services:
+  ```bash
+  kubectl get svc
+  ```
+- Describe a pod:
+  ```bash
+  kubectl describe pod <pod-name>
+  ```
+- View logs for a pod:
+  ```bash
+  kubectl logs <pod-name>
+  ```
+- Port-forward Jenkins service to localhost:
+  ```bash
+  kubectl port-forward svc/jenkins 8080:8080
+  ```
+- Get Jenkins password:
+    kubectl exec --namespace jenkins -it $(kubectl get pod -n jenkins -l app=jenkins -o jsonpath="{.items[0].metadata.name}") -- cat /var/jenkins_home/secrets/initialAdminPassword
+
+---
+Author: rvbasulto
+
+## Jenkins JDK Configuration
+
+To configure multiple JDK versions in Jenkins:
+
+- **JDK11** → `/opt/jdks/jdk-11`
+- **JDK17** → `/opt/jdks/jdk-17`
+- **JDK21** → `/opt/jdks/jdk-21`
+
+Make sure to go to **Manage Jenkins → Tools → JDK installations**, uncheck *Install automatically*, and set the paths above for each JDK version.
