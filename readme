@@ -2,6 +2,24 @@
 
 This repository contains the necessary files to deploy Jenkins on a Kubernetes cluster using YAML resources.
 
+Create cluster
+`minikube start --driver=virtualbox --cpus=4 --memory=8192 --disk-size=40g`
+
+Create and select namespaces jenkins
+`kubectl create namespace jenkins`
+`kubens jenkins`
+
+Set cluster for Sonar
+`minikube ssh`
+`sudo sysctl -w vm.max_map_count=262144`
+`exit`
+
+Enable ingress
+`minikube addons enable ingress`
+
+Update /etc/hosts
+`minikube ip` jenkins.local sonarqube.local nexus.local
+
 ## Included files
 
 - `jenkins-deployment.yaml`: Jenkins Deployment.
@@ -20,6 +38,11 @@ This repository contains the necessary files to deploy Jenkins on a Kubernetes c
    kubectl apply -f jenkins-service.yaml
    # Optional, if you use Ingress
    kubectl apply -f jenkins-ingress.yaml
+   kubectl apply -f sonarqube-db-secret.yaml
+   kubectl apply -f sonarqube-postgres.yaml
+   kubectl apply -f sonarqube-deployment.yaml
+   kubectl apply -f nexus.yaml
+   kubectl apply -f devtools-ingress.yaml
    ```
 
 2. Access Jenkins according to your Service or Ingress configuration.

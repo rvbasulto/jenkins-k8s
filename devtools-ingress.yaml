@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: devtools-ingress
+  namespace: jenkins
+  annotations:
+    # Optional: enable this later when you add TLS
+    # nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  # Use the NGINX ingress controller (replaces deprecated annotation)
+  ingressClassName: nginx
+  rules:
+    - host: sonarqube.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: sonarqube
+                port:
+                  number: 9000
+    - host: nexus.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nexus
+                port:
+                  number: 8081
+  # tls:
+  #   - hosts:
+  #       - sonarqube.local
+  #       - nexus.local
+  #     secretName: devtools-tls
