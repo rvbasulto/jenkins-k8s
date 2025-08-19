@@ -13,9 +13,10 @@ spec:
       labels:
         app: jenkins
     spec:
+      serviceAccountName: jenkins-admin
       containers:
         - name: jenkins
-          image: docker.io/rvbasulto/jenkins-multi-jdk:v3
+          image: docker.io/rvbasulto/jenkins-multi-jdk:v4
           ports:
             - containerPort: 8080
             - containerPort: 50000

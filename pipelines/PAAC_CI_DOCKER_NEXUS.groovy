@@ -25,7 +25,7 @@ pipeline {
 
     stage('Fetch code') {
       steps {
-        git branch: 'docker', url: 'https://github.com/hkhcoder/vprofile-project.git'
+        git branch: 'docker', url: 'https://github.com/rvbasulto/vprofile-project.git'
         script {
           // Set dynamic values
           env.SHORT_COMMIT = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
@@ -114,6 +114,22 @@ pipeline {
         }
       }
     }
+
+    stage('Deploy to Minikube') {
+      steps {
+        script {
+          // Define tag to use (you can change it to SHORT_COMMIT or BUILD_TIMESTAMP)
+          def imageTag = "${BUILD_NUMBER}"
+
+          // Prepara manifiesto reemplazando el TAG
+          sh """
+            sed 's|\\\${TAG}|${imageTag}|g' vprofile-deployment.yaml.tpl > vprofile-deployment.yaml
+            kubectl apply -f vprofile-deployment.yaml
+          """
+        }
+      }
+    }
+
   }
 
   post {

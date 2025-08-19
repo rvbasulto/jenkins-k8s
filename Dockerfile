@@ -1,3 +1,4 @@
+rvbasulto@RG-server:~/projects/jenkins$ cat Dockerfile 
 # Jenkins LTS with JDK 17 for the master process
 FROM jenkins/jenkins:lts-jdk17
 
@@ -68,6 +69,13 @@ RUN groupadd -f docker && usermod -aG docker jenkins
 # Optional: enable BuildKit for faster and more capable builds
 ENV DOCKER_BUILDKIT=1 \
     COMPOSE_DOCKER_CLI_BUILD=1
+
+# -----------------------------
+# Install kubectl
+# -----------------------------
+RUN curl -LO "https://dl.k8s.io/release/v1.30.1/bin/linux/amd64/kubectl" && \
+    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
+    rm kubectl
 
 # Back to Jenkins user (the base image already uses JDK 17 for the master)
 USER jenkins
