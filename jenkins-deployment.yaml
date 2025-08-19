@@ -14,19 +14,14 @@ spec:
         app: jenkins
     spec:
       containers:
-        # ------------------------------
-        # Jenkins (Docker CLI client)
-        # ------------------------------
         - name: jenkins
           image: docker.io/rvbasulto/jenkins-multi-jdk:v3
           ports:
             - containerPort: 8080
             - containerPort: 50000
           env:
-            # Point Docker CLI to the in-pod Docker daemon (DinD sidecar)
             - name: DOCKER_HOST
               value: tcp://localhost:2375
-            # Optional: enable BuildKit for faster and more capable builds
             - name: DOCKER_BUILDKIT
               value: "1"
             - name: COMPOSE_DOCKER_CLI_BUILD
@@ -34,42 +29,33 @@ spec:
           volumeMounts:
             - name: jenkins-storage
               mountPath: /var/jenkins_home
-          # Optionally, add small resources to avoid overscheduling (tweak as needed)
-          # resources:
-          #   requests:
-          #     cpu: "250m"
-          #     memory: "512Mi"
 
-        # ------------------------------
-        # Docker-in-Docker daemon (sidecar)
-        # ------------------------------
         - name: dind
           image: docker:24.0-dind
           securityContext:
-            privileged: true        # Required for DinD (cgroups, overlayfs, etc.)
+            privileged: true
           env:
-            # Disable TLS so Jenkins can talk over 2375 inside Pod network only
             - name: DOCKER_TLS_CERTDIR
               value: ""
           args:
-            # Listen on TCP for other containers in the same Pod + local Unix socket
             - "--host=tcp://0.0.0.0:2375"
             - "--host=unix:///var/run/docker.sock"
+            - "--config-file=/etc/docker/daemon.json"  
           volumeMounts:
-            # Cache Docker image layers to speed up builds between runs
             - name: dind-storage
               mountPath: /var/lib/docker
-          # Optional resources; adjust to your cluster capacity
-          # resources:
-          #   requests:
-          #     cpu: "500m"
-          #     memory: "1Gi"
+            - name: docker-daemon-config
+              mountPath: /etc/docker/daemon.json
+              subPath: daemon.json
 
       volumes:
         - name: jenkins-storage
           persistentVolumeClaim:
             claimName: jenkins-pvc
 
-        # Use emptyDir for ephemeral cache. Switch to a PVC for persistent cache if desired.
         - name: dind-storage
           emptyDir: {}
+
+        - name: docker-daemon-config
+          configMap:
+            name: dind-daemon-config

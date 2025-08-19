@@ -88,4 +88,11 @@ To configure multiple JDK versions in Jenkins:
 - **JDK17** → `/opt/jdks/jdk-17`
 - **JDK21** → `/opt/jdks/jdk-21`
 
-Make sure to go to **Manage Jenkins → Tools → JDK installations**, uncheck *Install automatically*, and set the paths above for each JDK version.
+
+Para crear un imagePullSecret
+kubectl create secret docker-registry nexus-creds \
+  --docker-server=nexus.jenkins.svc.cluster.local:5000 \
+  --docker-username=admin \
+  --docker-password=admin \
+  --docker-email=rvazquezbasulto@email.com \
+  -n jenkins

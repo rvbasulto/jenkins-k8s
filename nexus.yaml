@@ -62,10 +62,14 @@ metadata:
   name: nexus
   namespace: jenkins
 spec:
+  type: ClusterIP
   selector:
     app: nexus
   ports:
-    - name: http
+    - name: ui
       port: 8081
       targetPort: 8081
-  type: ClusterIP
+    - name: docker
+      port: 5000
+      targetPort: 5000
+
