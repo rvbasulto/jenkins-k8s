@@ -1,4 +1,3 @@
-rvbasulto@RG-server:~/projects/jenkins$ cat Dockerfile 
 # Jenkins LTS with JDK 17 for the master process
 FROM jenkins/jenkins:lts-jdk17
 
