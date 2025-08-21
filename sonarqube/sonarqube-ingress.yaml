@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sonarqube-ingress
+  namespace: jenkins
+  annotations:
+    # Optional: enable SSL redirect once TLS is configured
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: sonarqube.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: sonarqube
+                port:
+                  number: 9000
+  # Optional TLS for this host only
+  # tls:
+  #   - hosts:
+  #       - sonarqube.local
+  #     secretName: sonarqube-tls

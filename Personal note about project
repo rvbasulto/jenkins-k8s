@@ -1,0 +1,62 @@
+Project Context
+I recently worked on a hands-on project where I built a complete CI/CD pipeline running on Kubernetes with Minikube.
+The main goal was to strengthen two critical DevOps skills:
+
+Building and managing a robust CI/CD pipeline.
+
+Designing and running infrastructure on Kubernetes in a way that resembles production.
+
+Step 1 – Environment Setup
+I started by setting up my local environment with Minikube running on VirtualBox. I also installed kubectl and created a dedicated namespace to keep all the resources for this project isolated.
+
+Step 2 – Jenkins Deployment
+My first deployment was Jenkins. I created a Deployment and Service, initially exposing it with a NodePort. Later, I added an Ingress to make access easier using jenkins.local.
+At this stage, I also configured a Persistent Volume and Claim to make sure Jenkins data persisted across Pod restarts. This was important because, in Kubernetes, Pods are ephemeral and I wanted to simulate real-world practices.
+
+Step 3 – Adding SonarQube and Nexus
+Next, I deployed SonarQube (with a Postgres database) and Nexus Repository Manager. Both were exposed through Ingress as sonarqube.local and nexus.local.
+This setup gave me the three core tools I needed: Jenkins for orchestration, SonarQube for code analysis, and Nexus for artifact and image storage.
+
+Step 4 – First Pipelines (Maven)
+With the tools running, I built my first pipelines:
+
+Pull code from GitHub.
+
+Build and test with Maven.
+
+Run Checkstyle and SonarQube analysis.
+
+Upload the .war artifact to Nexus.
+
+This was the classic flow: code → build → analyze → store.
+
+Step 5 – Multi-JDK Support
+The project required testing with Java 11, 17, and 21. The default Jenkins image only had JDK 21, so I built a custom Jenkins image including all three JDKs, and configured them in Jenkins Global Tools. This allowed me to run builds in different versions, just like in a real enterprise environment.
+
+Step 6 – Moving to Docker Images
+At this point, I wanted to go beyond uploading .war files and instead package the application as a Docker image for Kubernetes deployment.
+The challenge: Jenkins Pods didn’t have Docker installed.
+The solution: I introduced a Docker-in-Docker (DinD) sidecar container. I installed Docker CLI in Jenkins, and all build commands were executed against the DinD daemon.
+
+This required changes in the Jenkins Deployment manifest, but after that I was able to successfully build and tag images.
+
+Step 7 – Pushing Docker Images to Nexus
+I configured Jenkins to push Docker images to the Nexus registry.
+For traceability, I implemented a tagging strategy including:
+
+Build number.
+
+Short commit hash.
+
+Timestamp.
+
+This made rollbacks and deployments much easier.
+
+Step 8 – Deploying to Kubernetes from Jenkins
+Finally, I wanted Jenkins itself to deploy the app into Kubernetes.
+
+First challenge: Jenkins image didn’t have kubectl. → I built a custom image including it.
+
+Second challenge: permissions. A Pod inside the cluster can’t run kubectl unless it has proper access. → I created a ServiceAccount and a ClusterRoleBinding so Jenkins could perform deployments.
+
+With that in place, the pipeline could run kubectl apply -f vprofile-deployment.yaml and deploy the application. I also set up an Ingress so the app was accessible at vprofile.local.

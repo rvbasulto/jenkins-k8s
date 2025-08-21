@@ -96,3 +96,5 @@ kubectl create secret docker-registry nexus-creds \
   --docker-password=admin \
   --docker-email=rvazquezbasulto@email.com \
   -n jenkins
+
+  

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nexus-data-pvc
+  namespace: jenkins
+spec:
+  # Stores Nexus blobs, configs, and repositories
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 15Gi
+  storageClassName: standard

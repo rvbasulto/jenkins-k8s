@@ -27,9 +27,14 @@ pipeline {
       steps {
         git branch: 'docker', url: 'https://github.com/rvbasulto/vprofile-project.git'
         script {
-          // Set dynamic values
-          env.SHORT_COMMIT = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
-          env.BUILD_TIMESTAMP = sh(script: "date -u +%Y%m%d-%H%M", returnStdout: true).trim()
+            // Set dynamic values
+            def shortCommit = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+            def timestamp = sh(script: "date -u +%Y%m%d-%H%M", returnStdout: true).trim()
+
+            // Exportar explícitamente a `env`
+            env.SHORT_COMMIT = shortCommit
+            env.BUILD_TIMESTAMP = timestamp
+
         }
       }
     }
@@ -114,7 +119,7 @@ pipeline {
         }
       }
     }
-
+    
     stage('Deploy to Minikube') {
       steps {
         script {
